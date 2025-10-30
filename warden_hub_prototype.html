@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WardenHub — Version 1.0</title>
+  <style>
+    /* Simple mobile-first styling */
+    :root{--accent:#0b6efd;--muted:#6b7280;--bg:#f7f7fb}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;background:var(--bg);color:#0f1724}
+    header{background:white;padding:12px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 1px 0 rgba(0,0,0,0.06)}
+    header h1{font-size:18px;margin:0}
+    main{padding:16px;max-width:900px;margin:16px auto}
+    nav{display:flex;gap:8px;overflow:auto;padding:8px 0}
+    .btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;font-weight:600}
+    .card{background:white;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 2px 8px rgba(2,6,23,0.03)}
+    label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+    input,textarea,select,button{width:100%;padding:8px;border-radius:8px;border:1px solid #e6edf3}
+    .row{display:flex;gap:8px}
+    .col{flex:1}
+    .tiny{font-size:12px;color:var(--muted)}
+    ul{padding-left:16px;margin:0}
+    .list-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f0f0f3}
+    .actions{display:flex;gap:6px}
+  .tiny{
+    display:grid;
+  }
+    footer{padding:12px;text-align:center;color:var(--muted);font-size:13px}
+    @media(min-width:700px){nav{gap:12px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0b6efd,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700">WH</div>
+    <div>
+      <h1>WardenHub — V1.0</h1> 
+
+    </div>
+  </header>
+
+  <main>
+    <div class="tiny">
+     <img style=" margin:0 auto; width:4cm; length:1cm; border-radius:2%; box-shadow:2px 2px 8px black;" src="../img/abibjordan.jpg" alt="@abibjordan"/>
+    </div>
+    <nav>
+      <button class="btn" data-nav="dashboard">Dashboard</button>
+      <button class="btn" data-nav="mental">Mental Health</button>
+      <button class="btn" data-nav="training">Training</button>
+      <button class="btn" data-nav="reports">Reports</button>
+      <button class="btn" data-nav="inmates">Inmates</button>
+      <button class="btn" data-nav="settings">Settings</button>
+    </nav>
+
+    <section id="dashboard" class="card">
+      <h2>Dashboard</h2>
+      <p class="tiny">Quick actions & summary</p>
+      <div class="row" style="margin-top:8px">
+        <div class="col card" id="summary">
+          <strong id="countInmates">0</strong>
+          <div class="tiny">Registered inmates</div>
+        </div>
+        <div class="col card">
+          <strong id="countReports">0</strong>
+          <div class="tiny">Open reports</div>
+        </div>
+        <div class="col card">
+          <strong id="countCompletedLessons">0</strong>
+          <div class="tiny">Training lessons completed</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mental" class="card" style="display:none">
+      <h2>Mental Health Check</h2>
+      <p class="tiny">Quick self-screen for stress and burnout. This is not a diagnosis.</p>
+      <form id="mhForm">
+        <label>1. Feeling nervous, anxious or on edge?</label>
+        <select id="q1"><option value="0">Never</option><option value="1">Sometimes</option><option value="2">Often</option><option value="3">Almost always</option></select>
+        <label>2. Trouble sleeping or sleeping too much?</label>
+        <select id="q2"><option value="0">Never</option><option value="1">Sometimes</option><option value="2">Often</option><option value="3">Almost always</option></select>
+        <label>3. Feeling down, depressed or hopeless?</label>
+        <select id="q3"><option value="0">Never</option><option value="1">Sometimes</option><option value="2">Often</option><option value="3">Almost always</option></select>
+        <label>4. Lost interest in doing things you enjoy?</label>
+        <select id="q4"><option value="0">Never</option><option value="1">Sometimes</option><option value="2">Often</option><option value="3">Almost always</option></select>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn" type="button" id="mhCheck">Check</button>
+          <button class="btn" type="button" id="mhSave">Save result</button>
+        </div>
+      </form>
+      <div id="mhResult" style="margin-top:10px"></div>
+    </section>
+
+    <section id="training" class="card" style="display:none">
+      <h2>Training & Micro-lessons</h2>
+      <p class="tiny">Short lessons that wardens can complete on a phone. Tap a lesson to open.</p>
+      <ul id="lessonsList">
+        <!-- lessons injected by JS -->
+      </ul>
+      <div class="card" id="lessonView" style="display:none;margin-top:12px">
+        <h3 id="lessonTitle"></h3>
+        <p id="lessonText"></p>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="markComplete">Mark complete</button>
+          <button class="btn" id="closeLesson">Close</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="reports" class="card" style="display:none">
+      <h2>Reports / Incidents</h2>
+      <p class="tiny">Create quick incident or maintenance reports. Export as JSON/CSV.</p>
+      <form id="reportForm">
+        <label>Type</label>
+        <select id="reportType"><option>Incident</option><option>Maintenance</option><option>Health</option><option>Other</option></select>
+        <label>Short title</label>
+        <input id="reportTitle" placeholder="e.g. Broken water tank" />
+        <label>Details</label>
+        <textarea id="reportDetails" rows="3" placeholder="What happened? Who is involved?"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" type="button" id="saveReport">Save report</button>
+          <button class="btn" type="button" id="exportReports">Export JSON</button>
+        </div>
+      </form>
+      <div id="reportsList" style="margin-top:12px"></div>
+    </section>
+
+    <section id="inmates" class="card" style="display:none">
+      <h2>Inmate Register</h2>
+      <p class="tiny">Add basic records and counseling notes.</p>
+      <form id="inmateForm">
+        <div class="row">
+          <div class="col"><label>Name</label><input id="iname" placeholder="Full name" /></div>
+          <div class="col"><label>Prison ID</label><input id="iid" placeholder="ID number" /></div>
+        </div>
+        <label>Notes / Counseling</label>
+        <textarea id="inotes" rows="2"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" type="button" id="saveInmate">Save</button>
+          <button class="btn" type="button" id="clearInmate">Clear</button>
+        </div>
+      </form>
+      <div id="inmatesList" style="margin-top:12px"></div>
+    </section>
+
+    <section id="settings" class="card" style="display:none">
+      <h2>Settings</h2>
+      <p class="tiny">Local demo settings. Data stored on this device only.</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="resetAll">Reset demo data</button>
+        <button class="btn" id="downloadAll">Download data (JSON)</button>
+      </div>
+      <p class="tiny" style="margin-top:8px">Tip: Use the Export button in Reports to download incident data for sending to supervisors via email or transferring via USB.</p>
+    </section>
+
+    <footer class="card">
+      Prototype built for discussion. Not for production use. — WardenHub
+    </footer>
+  </main>
+
+  <script>
+    // Simple app state using localStorage
+    const STORAGE_KEY = 'wardenhub_v1';
+    const defaultState = {
+      inmates: [],
+      reports: [],
+      lessons: [
+        {id:'l1',title:'De-escalation basics',text:'Short tips: use calm voice, keep distance, listen and acknowledge feelings.'},
+        {id:'l2',title:'Self-care for wardens',text:'Micro practices: 5-min breathing, talk to a peer, keep sleep routine.'},
+        {id:'l3',title:'Report writing 101',text:'Be concise: who, what, when, where, actions taken.'}
+      ],
+      completedLessons: [],
+      mentalResults: []
+    };
+
+    function loadState(){
+      try{const raw = localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):defaultState;}catch(e){console.error(e);return defaultState}
+    }
+    function saveState(s){localStorage.setItem(STORAGE_KEY,JSON.stringify(s));}
+    let state = loadState();
+
+    // Navigation
+    document.querySelectorAll('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('main section.card').forEach(s=>s.style.display='none');
+      document.getElementById(btn.dataset.nav).style.display='block';
+      refreshUI();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }));
+
+    // Initial show dashboard
+    refreshUI();
+
+    function refreshUI(){
+      document.getElementById('countInmates').textContent = state.inmates.length;
+      document.getElementById('countReports').textContent = state.reports.length;
+      document.getElementById('countCompletedLessons').textContent = state.completedLessons.length;
+      renderLessons();
+      renderReports();
+      renderInmates();
+    }
+
+    // --- Mental health ---
+    document.getElementById('mhCheck').addEventListener('click',()=>{
+      const score = ['q1','q2','q3','q4'].reduce((sum,id)=>sum + Number(document.getElementById(id).value),0);
+      const box = document.getElementById('mhResult');
+      let text='', color='';
+      if(score<=3){text='Low distress — keep practicing self-care and peer support.'; color='green';}
+      else if(score<=6){text='Moderate distress — consider short counseling and rest.'; color='orange';}
+      else{text='High distress — seek professional support as soon as possible.'; color='red';}
+      box.innerHTML = `<div style="padding:10px;border-radius:8px;background:#fff;border-left:6px solid ${color};">Score: <strong>${score}</strong><div class=\"tiny\">${text}</div></div>`;
+    });
+
+    document.getElementById('mhSave').addEventListener('click',()=>{
+      const score = ['q1','q2','q3','q4'].reduce((sum,id)=>sum + Number(document.getElementById(id).value),0);
+      state.mentalResults.push({score,when:new Date().toISOString()});
+      saveState(state);
+      alert('Result saved locally');
+      refreshUI();
+    });
+
+    // --- Training ---
+    function renderLessons(){
+      const ul = document.getElementById('lessonsList'); ul.innerHTML='';
+      state.lessons.forEach(l=>{
+        const done = state.completedLessons.includes(l.id);
+        const li = document.createElement('li'); li.className='list-item';
+        li.innerHTML = `<div><strong>${l.title}</strong><div class=\"tiny\">${done? 'Completed':'Not completed'}</div></div><div class=\"actions\"><button data-id=\"${l.id}\" class=\"btn openLesson\">Open</button></div>`;
+        ul.appendChild(li);
+      });
+      document.querySelectorAll('.openLesson').forEach(b=>b.addEventListener('click',e=>openLesson(e.target.dataset.id)));
+    }
+    function openLesson(id){
+      const lesson = state.lessons.find(x=>x.id===id); if(!lesson) return;
+      document.getElementById('lessonView').style.display='block';
+      document.getElementById('lessonTitle').textContent = lesson.title;
+      document.getElementById('lessonText').textContent = lesson.text;
+      document.getElementById('markComplete').onclick = ()=>{ if(!state.completedLessons.includes(lesson.id)) state.completedLessons.push(lesson.id); saveState(state); alert('Marked complete'); renderLessons(); refreshUI(); };
+      document.getElementById('closeLesson').onclick = ()=>{document.getElementById('lessonView').style.display='none'};
+    }
+
+    // --- Reports ---
+    document.getElementById('saveReport').addEventListener('click',()=>{
+      const r = {
+        id: 'r_'+Date.now(),
+        type: document.getElementById('reportType').value,
+        title: document.getElementById('reportTitle').value.trim() || '(no title)',
+        details: document.getElementById('reportDetails').value.trim(),
+        when: new Date().toISOString()
+      };
+      state.reports.unshift(r); saveState(state); renderReports(); alert('Report saved locally');
+    });
+
+    function renderReports(){
+      const div = document.getElementById('reportsList'); div.innerHTML='';
+      if(state.reports.length===0){div.innerHTML='<div class="tiny">No reports yet</div>';return}
+      state.reports.forEach(r=>{
+        const el = document.createElement('div'); el.className='list-item';
+        el.innerHTML = `<div><strong>${r.title}</strong><div class=\"tiny\">${r.type} • ${new Date(r.when).toLocaleString()}</div></div>
+          <div class=\"actions\"><button class=\"btn\" data-id=\"${r.id}\" onclick=\"viewReport('${r.id}')\">View</button>
+          <button class=\"btn\" onclick=\"deleteReport('${r.id}')\">Delete</button></div>`;
+        div.appendChild(el);
+      });
+    }
+
+    window.viewReport = function(id){
+      const r = state.reports.find(x=>x.id===id); if(!r) return; alert(`${r.title}\n\n${r.details}\n\nWhen: ${new Date(r.when).toLocaleString()}`);
+    }
+    window.deleteReport = function(id){ if(!confirm('Delete this report?')) return; state.reports = state.reports.filter(x=>x.id!==id); saveState(state); renderReports(); refreshUI(); }
+
+    document.getElementById('exportReports').addEventListener('click',()=>{
+      const data = JSON.stringify(state.reports, null, 2);
+      const blob = new Blob([data],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download = 'wardenhub_reports_'+(new Date()).toISOString()+'.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // --- Inmates ---
+    document.getElementById('saveInmate').addEventListener('click',()=>{
+      const name = document.getElementById('iname').value.trim();
+      const pid = document.getElementById('iid').value.trim();
+      const notes = document.getElementById('inotes').value.trim();
+      if(!name){alert('Please enter a name');return}
+      const rec = {id:'i_'+Date.now(),name, pid, notes, when:new Date().toISOString()};
+      state.inmates.unshift(rec); saveState(state); renderInmates(); document.getElementById('inmateForm').reset();
+    });
+    document.getElementById('clearInmate').addEventListener('click',()=>{document.getElementById('inmateForm').reset()});
+
+    function renderInmates(){
+      const div = document.getElementById('inmatesList'); div.innerHTML='';
+      if(state.inmates.length===0){div.innerHTML='<div class="tiny">No inmates registered</div>';return}
+      state.inmates.forEach(i=>{
+        const el = document.createElement('div'); el.className='list-item';
+        el.innerHTML = `<div><strong>${i.name}</strong><div class=\"tiny\">ID: ${i.pid || '-'} • Added ${new Date(i.when).toLocaleString()}</div></div>
+          <div class=\"actions\"><button class=\"btn\" onclick=\"viewInmate('${i.id}')\">View</button>
+          <button class=\"btn\" onclick=\"deleteInmate('${i.id}')\">Delete</button></div>`;
+        div.appendChild(el);
+      });
+    }
+    window.viewInmate = function(id){const i = state.inmates.find(x=>x.id===id); if(!i) return; alert(`${i.name}\n\nID: ${i.pid}\nNotes: ${i.notes}`)}
+    window.deleteInmate = function(id){ if(!confirm('Delete this record?')) return; state.inmates = state.inmates.filter(x=>x.id!==id); saveState(state); renderInmates(); refreshUI(); }
+
+    // --- Settings ---
+    document.getElementById('resetAll').addEventListener('click',()=>{ if(!confirm('Reset local demo data?')) return; localStorage.removeItem(STORAGE_KEY); state = loadState(); refreshUI(); alert('Demo data reset'); });
+    document.getElementById('downloadAll').addEventListener('click',()=>{ const data = JSON.stringify(state, null, 2); const blob = new Blob([data],{type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download = 'wardenhub_all_'+(new Date()).toISOString()+'.json'; a.click(); URL.revokeObjectURL(url); });
+
+    // load default view as dashboard
+    document.querySelector('[data-nav="dashboard"]').click();
+  </script>
+</body>
+</html>
